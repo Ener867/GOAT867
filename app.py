@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from methods.newton import newton_raphson
 from methods.horner import horner
 from methods.interpolacion import interpolacion_lineal, interpolacion_cuadratica
@@ -10,6 +11,7 @@ import ast
 import operator
 
 app = Flask(__name__)
+CORS(app)
 
 # Función para evaluar expresiones matemáticas simples con seguridad
 def safe_eval_math_expr(expr):
