@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Proyecto Final Métodos Numéricos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fefefe;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      color: #d92b2b;
+    }
+
+    .container {
+      max-width: 400px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .calculator button {
+      padding: 12px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 12px;
+      background: #eee;
+      cursor: pointer;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .calculator button:hover {
+      background: #d92b2b;
+      color: #fff;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      background-color: #d92b2b;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 1.1em;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #b21f1f;
+    }
+
+    #resultado, #respuestaIA {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #eee;
+      padding: 10px;
+      border-radius: 10px;
+      min-height: 50px;
+      font-family: monospace;
+    }
+
+    .module-toggle {
+      margin: 15px 0;
+      font-weight: bold;
+      cursor: pointer;
+      color: #d92b2b;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Proyecto Final Métodos Numéricos</h1>
+
+  <div class="module-toggle" onclick="mostrarModulo('numerico')">🧮 Módulo Numérico</div>
+  <div class="module-toggle" onclick="mostrarModulo('ia')">🤖 Resolver con IA</div>
+
+  <div class="container" id="modulo-numerico">
+    <form id="formulario">
+      <label for="metodo">Método:</label>
+      <select id="metodo" name="metodo" required>
+        <option value="" disabled selected>Selecciona un método</option>
+        <option value="newton">Newton-Raphson</option>
+        <option value="horner">Horner</option>
+        <option value="interpolacion lineal">Interpolación Lineal</option>
+        <option value="interpolacion cuadratica">Interpolación Cuadrática</option>
+        <option value="lagrange">Lagrange</option>
+        <option value="minimos cuadrados">Mínimos Cuadrados</option>
+        <option value="ajuste curvas">Interpolación Menor Error</option>
+      </select>
+
+      <label for="funcionInput" id="labelFuncion">Función:</label>
+      <input type="text" id="funcionInput" name="funcion" placeholder="Ej: x² + √x - 3" readonly autocomplete="off" />
+
+      <div class="calculator" aria-label="Calculadora para entrada de función">
+        <button type="button" onclick="add('1')">1</button>
+        <button type="button" onclick="add('2')">2</button>
+        <button type="button" onclick="add('3')">3</button>
+        <button type="button" onclick="add('+')">+</button>
+        <button type="button" onclick="add('4')">4</button>
+        <button type="button" onclick="add('5')">5</button>
+        <button type="button" onclick="add('6')">6</button>
+        <button type="button" onclick="add('-')">−</button>
+        <button type="button" onclick="add('7')">7</button>
+        <button type="button" onclick="add('8')">8</button>
+        <button type="button" onclick="add('9')">9</button>
+        <button type="button" onclick="add('*')">×</button>
+        <button type="button" onclick="add('0')">0</button>
+        <button type="button" onclick="add('x')">x</button>
+        <button type="button" onclick="add('²')">x²</button>
+        <button type="button" onclick="add('³')">x³</button>
+        <button type="button" onclick="add('√(')">√</button>
+        <button type="button" onclick="add('log(')">log</button>
+        <button type="button" onclick="add('sin(')">sin</button>
+        <button type="button" onclick="add('cos(')">cos</button>
+        <button type="button" onclick="delChar()">←</button>
+        <button type="button" onclick="add('(')">(</button>
+        <button type="button" onclick="add(')')">)</button>
+        <button type="button" onclick="add(',')">,</button>
+        <button type="button" onclick="add('.')">.</button>
+      </div>
+
+      <label for="x0">x₀ (si aplica):</label>
+      <input type="text" id="x0" name="x0" placeholder="Ej: 2" autocomplete="off" />
+
+      <label id="labelPuntos" for="inputPuntos" style="display:none;">Puntos (x,y):</label>
+      <input type="text" name="puntos" id="inputPuntos" placeholder="Ej: (1,2),(2,3),(4,1)" style="display:none;" autocomplete="off" />
+
+      <input type="submit" value="Resolver" />
+    </form>
+    <div id="resultado" role="region" aria-live="polite"></div>
+  </div>
+
+  <div class="container" id="modulo-ia" style="display:none;">
+    <form id="formIA">
+      <label for="problemaIA">Describe tu problema matemático:</label>
+      <textarea id="problemaIA" placeholder="Ej: Resuelve la integral de x^2 de 0 a 3..."></textarea>
+      <input type="submit" value="Resolver con IA" />
+    </form>
+    <div id="respuestaIA" role="region" aria-live="polite"></div>
+  </div>
+
+  <script>
+    const funcionInput = document.getElementById("funcionInput");
+
+    function add(text) {
+      const start = funcionInput.selectionStart;
+      const end = funcionInput.selectionEnd;
+      const value = funcionInput.value;
+      funcionInput.value = value.substring(0, start) + text + value.substring(end);
+      const newPos = start + text.length;
+      funcionInput.setSelectionRange(newPos, newPos);
+      funcionInput.focus();
+    }
+
+    function delChar() {
+      const start = funcionInput.selectionStart;
+      const end = funcionInput.selectionEnd;
+      const value = funcionInput.value;
+      if (start === end && start > 0) {
+        funcionInput.value = value.substring(0, start - 1) + value.substring(end);
+        funcionInput.setSelectionRange(start - 1, start - 1);
+      } else if (start !== end) {
+        funcionInput.value = value.substring(0, start) + value.substring(end);
+        funcionInput.setSelectionRange(start, start);
+      }
+      funcionInput.focus();
+    }
+
+    document.getElementById("metodo").addEventListener("change", function () {
+      const met = this.value;
+      const showPuntos = ["lagrange", "interpolacion lineal", "interpolacion cuadratica", "minimos cuadrados", "ajuste curvas"].includes(met);
+      document.getElementById("labelPuntos").style.display = showPuntos ? "block" : "none";
+      document.getElementById("inputPuntos").style.display = showPuntos ? "block" : "none";
+      const labelFuncion = document.getElementById("labelFuncion");
+
+      if (met === "lagrange") {
+        funcionInput.readOnly = false;
+        funcionInput.value = "";
+        funcionInput.placeholder = "Valor de x para evaluar (ej: 2.5)";
+        labelFuncion.textContent = "Valor de x para evaluar:";
+      } else {
+        funcionInput.readOnly = false;
+        funcionInput.value = "";
+        funcionInput.placeholder = "Ej: x² + √x - 3";
+        labelFuncion.textContent = "Función:";
+      }
+      document.getElementById('resultado').textContent = '';
+    });
+
+    document.getElementById("formulario").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const resultadoDiv = document.getElementById('resultado');
+      resultadoDiv.textContent = "Resolviendo...";
+      const metodo = document.getElementById('metodo').value;
+      const funcion = funcionInput.value;
+      const x0 = document.getElementById('x0').value;
+      const puntos = document.getElementById('inputPuntos').value;
+      const datos = { metodo, funcion, x0, puntos };
+
+      try {
+        const response = await fetch('/resolver', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        const resultado = await response.json();
+        if (resultado.error) {
+          resultadoDiv.textContent = "Error: " + resultado.error;
+        } else {
+          resultadoDiv.textContent = "Resultado:\n" + JSON.stringify(resultado, null, 2);
+        }
+      } catch (error) {
+        resultadoDiv.textContent = "Error de conexión o en el servidor: " + error.message;
+      }
+    });
+
+    document.getElementById("formIA").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const problema = document.getElementById("problemaIA").value;
+      const respuestaDiv = document.getElementById("respuestaIA");
+      respuestaDiv.textContent = "Pensando con IA...";
+
+      try {
+        const res = await fetch("https://math-ia-backend.onrender.com/resolver", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ problema }),
+        });
+        if (!res.ok) throw new Error("Error al procesar la petición");
+        const data = await res.json();
+        respuestaDiv.textContent = data.respuesta || "No se obtuvo respuesta.";
+      } catch (error) {
+        respuestaDiv.textContent = "Error al resolver el problema. Intenta nuevamente.";
+        console.error(error);
+      }
+    });
+
+    function mostrarModulo(modulo) {
+      document.getElementById("modulo-numerico").style.display = (modulo === "numerico") ? "block" : "none";
+      document.getElementById("modulo-ia").style.display = (modulo === "ia") ? "block" : "none";
+    }
+  </script>
+</body>
+</html>
